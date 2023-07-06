@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <style>
+    #chat-container {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chat App</h1>
+  
+  <div id="chat-container"></div>
+  
+  <input type="text" id="name-input" placeholder="Your Name">
+  <input type="text" id="message-input" placeholder="Type your message">
+  <button id="send-btn">Send</button>
+  
+  <!-- Include the Firebase JavaScript SDK here -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  
+  <script>
+    // Initialize Firebase with your project's configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyB2YPPDaleE9Ic1u_5aClde4jHb3Hl0cx8",
+  authDomain: "ramy-s-chat.firebaseapp.com",
+  projectId: "ramy-s-chat",
+  storageBucket: "ramy-s-chat.appspot.com",
+  messagingSenderId: "649483967196",
+  appId: "1:649483967196:web:d0c3782dcad3383385f219",
+  measurementId: "G-HET8VZVK4X"
+      // Add your Firebase project configuration here
+    };
+    firebase.initializeApp(firebaseConfig);
+    
+    // Get a reference to the Firebase database
+    var database = firebase.database();
+    
+    // Reference to the messages collection
+    var messagesRef = database.ref('messages');
+    
+    // Listen for new messages and update the chat container
+    messagesRef.on('child_added', function(snapshot) {
+      var message = snapshot.val();
+      displayMessage(message.name, message.text);
+    });
+    
+    // Function to display a new message in the chat container
+    function displayMessage(name, text) {
+      var chatContainer = document.getElementById('chat-container');
+      var messageElement = document.createElement('p');
+      messageElement.innerText = name + ': ' + text;
+      chatContainer.appendChild(messageElement);
+    }
+    
+    // Function to send a new message
+    function sendMessage() {
+      var nameInput = document.getElementById('name-input');
+      var messageInput = document.getElementById('message-input');
+      
+      var name = nameInput.value;
+      var text = messageInput.value;
+      
+      // Push the new message to Firebase
+      messagesRef.push().set({
+        name: name,
+        text: text
+      });
+      
+      // Clear the message input field
+      messageInput.value = '';
+    }
+    
+    // Add event listener to the send button
+    var sendButton = document.getElementById('send-btn');
+    sendButton.addEventListener('click', sendMessage);
+  </script>
+</body>
+</html>
