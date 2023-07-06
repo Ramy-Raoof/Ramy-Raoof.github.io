@@ -22,7 +22,7 @@
   
   <!-- Include the Firebase JavaScript SDK here -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   
   <script>
     // Initialize Firebase with your project's configuration
@@ -34,20 +34,23 @@
   messagingSenderId: "649483967196",
   appId: "1:649483967196:web:d0c3782dcad3383385f219",
   measurementId: "G-HET8VZVK4X"
-      // Add your Firebase project configuration here
     };
     firebase.initializeApp(firebaseConfig);
     
-    // Get a reference to the Firebase database
-    var database = firebase.database();
+    // Get a reference to the Firestore database
+    var db = firebase.firestore();
     
     // Reference to the messages collection
-    var messagesRef = database.ref('messages');
+    var messagesRef = db.collection('messages');
     
     // Listen for new messages and update the chat container
-    messagesRef.on('child_added', function(snapshot) {
-      var message = snapshot.val();
-      displayMessage(message.name, message.text);
+    messagesRef.onSnapshot(function(querySnapshot) {
+      querySnapshot.docChanges().forEach(function(change) {
+        if (change.type === "added") {
+          var message = change.doc.data();
+          displayMessage(message.name, message.text);
+        }
+      });
     });
     
     // Function to display a new message in the chat container
@@ -66,8 +69,8 @@
       var name = nameInput.value;
       var text = messageInput.value;
       
-      // Push the new message to Firebase
-      messagesRef.push().set({
+      // Add the new message to Firestore
+      messagesRef.add({
         name: name,
         text: text
       });
@@ -82,3 +85,4 @@
   </script>
 </body>
 </html>
+
